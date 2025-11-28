@@ -237,6 +237,88 @@
         overflow-x: auto;
       }
 
+      .results-search {
+        margin-top: 8px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .results-search input[type="text"] {
+        flex: 1 1 220px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: rgba(27, 29, 26, 0.82);
+        color: var(--ronks-white);
+        font-size: 13px;
+      }
+
+      .results-search input[type="text"]::placeholder {
+        color: rgba(255, 255, 255, 0.52);
+      }
+
+      .results-search button {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: none;
+        background: var(--ronks-orange);
+        color: var(--ronks-black);
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 13px;
+      }
+
+      .results-search button:hover {
+        background: #ff7b47;
+      }
+
+      .results-counter {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .results-search-status {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .results-search-status--error {
+        color: #fca5a5;
+      }
+
+      .more-results {
+        margin-top: 8px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .more-results-button,
+      .collapse-results-button {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--ronks-white);
+        font-size: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .more-results-button:hover,
+      .collapse-results-button:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .highlight-row {
+        outline: 2px solid var(--ronks-orange);
+        outline-offset: -2px;
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;
@@ -580,6 +662,11 @@
       const errorEl = document.getElementById("error");
       const tableEl = document.getElementById("tableContainer");
 
+      const PAGE_SIZE = 10;
+      let allItems = [];
+      let visibleCount = 0;
+      let pendingScrollIndex = null;
+
       if (button && input) {
         button.addEventListener("click", searchCrosses);
         input.addEventListener("keypress", (e) => {
@@ -668,12 +755,29 @@
       }
 
       function renderTable(items) {
-        if (!items.length) {
+        allItems = items || [];
+
+        if (!allItems.length) {
           tableEl.innerHTML = "<p>Аналоги не найдены.</p>";
           return;
         }
 
-        const html = `
+        visibleCount = Math.min(PAGE_SIZE, allItems.length);
+        renderTableSlice();
+      }
+
+      function renderTableSlice() {
+        const slice = allItems.slice(0, visibleCount);
+
+        if (!slice.length) {
+          tableEl.innerHTML = "<p>Аналоги не найдены.</p>";
+          return;
+        }
+
+        const total = allItems.length;
+        const remaining = Math.max(total - visibleCount, 0);
+
+        const tableHtml = `
           <table>
             <thead>
               <tr>
@@ -686,10 +790,10 @@
               </tr>
             </thead>
             <tbody>
-              ${items
+              ${slice
                 .map(
-                  (i) => `
-                    <tr class="clickable-row" data-href="https://lk.ronks.ru">
+                  (i, index) => `
+                    <tr class="clickable-row" data-href="https://lk.ronks.ru" data-row-index="${index}">
                       <td>${escapeHtml(i.origManuf)}</td>
                       <td>${escapeHtml(i.origPart)}</td>
                       <td>${escapeHtml(i.origDesc)}</td>
@@ -704,7 +808,54 @@
           </table>
         `;
 
-        tableEl.innerHTML = html;
+        let controlsHtml = `<div class="more-results"><span class="results-counter">Показано ${visibleCount} из ${total}</span>`;
+
+        if (total > PAGE_SIZE) {
+          const remainingNow = Math.max(total - visibleCount, 0);
+          const toShowNow = Math.min(PAGE_SIZE, remainingNow);
+
+          if (remainingNow > 0) {
+            controlsHtml += `
+              <button
+                type="button"
+                class="more-results-button"
+                title="Показать ещё ${toShowNow} из ${total} вариантов"
+              >
+                <span>Ещё ${toShowNow} из ${total} вариантов</span>
+                <span>↓</span>
+              </button>
+            `;
+          }
+
+          if (visibleCount > PAGE_SIZE) {
+            controlsHtml += `
+              <button
+                type="button"
+                class="collapse-results-button"
+                title="Свернуть список до первых ${PAGE_SIZE} вариантов"
+              >
+                <span>Свернуть</span>
+                <span>↑</span>
+              </button>
+            `;
+          }
+        }
+
+        controlsHtml += "</div>";
+
+        const searchHtml = `
+          <div class="results-search">
+            <input
+              id="results-search-input"
+              type="text"
+              placeholder="Поиск по таблице (артикул, производитель, описание)"
+            />
+            <button type="button" id="results-search-button">Найти</button>
+            <span id="results-search-status" class="results-search-status"></span>
+          </div>
+        `;
+
+        tableEl.innerHTML = searchHtml + tableHtml + controlsHtml;
 
         document.querySelectorAll(".clickable-row").forEach((row) => {
           row.addEventListener("click", () => {
@@ -714,6 +865,97 @@
             }
           });
         });
+
+        const searchInput = document.getElementById("results-search-input");
+        const searchButton = document.getElementById("results-search-button");
+
+        if (searchInput && searchButton) {
+          const triggerSearch = () => {
+            const query = searchInput.value.trim();
+            searchInResults(query);
+          };
+
+          searchButton.addEventListener("click", triggerSearch);
+          searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              triggerSearch();
+            }
+          });
+        }
+
+        const moreBtn = document.querySelector(".more-results-button");
+        if (moreBtn) {
+          moreBtn.addEventListener("click", () => {
+            const remainingNow = Math.max(allItems.length - visibleCount, 0);
+            if (remainingNow <= 0) return;
+            const add = Math.min(PAGE_SIZE, remainingNow);
+            visibleCount += add;
+            renderTableSlice();
+          });
+        }
+
+        const collapseBtn = document.querySelector(".collapse-results-button");
+        if (collapseBtn) {
+          collapseBtn.addEventListener("click", () => {
+            visibleCount = Math.min(PAGE_SIZE, allItems.length);
+            pendingScrollIndex = 0;
+            renderTableSlice();
+          });
+        }
+
+        if (pendingScrollIndex !== null) {
+          const row = document.querySelector(
+            `tr[data-row-index="${pendingScrollIndex}"]`,
+          );
+          if (row) {
+            row.classList.add("highlight-row");
+            row.scrollIntoView({ behavior: "smooth", block: "center" });
+            setTimeout(() => {
+              row.classList.remove("highlight-row");
+            }, 2000);
+          }
+          pendingScrollIndex = null;
+        }
+      }
+
+      function searchInResults(query) {
+        if (!allItems.length) return;
+
+        const statusEl = document.getElementById("results-search-status");
+        if (statusEl) {
+          statusEl.textContent = "";
+          statusEl.classList.remove("results-search-status--error");
+        }
+
+        const trimmed = (query || "").trim();
+        if (!trimmed) return;
+
+        const q = trimmed.toLowerCase();
+        const idx = allItems.findIndex((item) => {
+          return [
+            item.origManuf,
+            item.origPart,
+            item.origDesc,
+            item.analogManuf,
+            item.analogPart,
+            item.analogDesc,
+          ]
+            .filter(Boolean)
+            .some((val) => String(val).toLowerCase().includes(q));
+        });
+
+        if (idx === -1) {
+          if (statusEl) {
+            statusEl.textContent = "Ничего не найдено";
+            statusEl.classList.add("results-search-status--error");
+          }
+          return;
+        }
+
+        visibleCount = Math.max(PAGE_SIZE, idx + 1);
+        pendingScrollIndex = idx;
+        renderTableSlice();
       }
 
       function escapeHtml(text) {
