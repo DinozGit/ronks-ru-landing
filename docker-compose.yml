@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  ronks-landing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ronks-landing
+    ports:
+      # Локальная разработка:
+      # Хост:Контейнер → http://localhost:8008
+      - "8008:8008"
+      # В проде под nginx заменим на:
+      # - "127.0.0.1:8008:8008"
+    restart: unless-stopped

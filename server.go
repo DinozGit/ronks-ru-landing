@@ -16,7 +16,7 @@ const (
 	ui    = "00000000-0000-0000-0000-000000000000"
 	ver   = "3.0.1"
 	apiURL = "https://fapi.iisis.ru/fapi/v2/analogList"
-	addr   = "localhost:8008"
+	addr   = ":8008" // listen on all interfaces (needed for Docker)
 )
 
 type errorResponse struct {
