@@ -72,7 +72,7 @@ From the repository root (`ronks-ru-landing`):
 - Start the server:
   - `go run ./server.go`
 - Then open in a browser:
-  - `http://localhost:8000`
+  - `http://localhost:8008`
 
 Behaviour:
 - `GET /` (and any non-`/api/analog` path) serves `index.html`.
@@ -84,7 +84,7 @@ From the repository root:
 
 - `go build -o ronks-server.exe ./server.go`
 
-This produces a self-contained executable (`ronks-server.exe`) that, when run, starts the server on `http://localhost:8000`.
+This produces a self-contained executable (`ronks-server.exe`) that, when run, starts the server on `http://localhost:8008`.
 
 ### Tests and linting
 

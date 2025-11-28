@@ -16,7 +16,7 @@ const (
 	ui    = "00000000-0000-0000-0000-000000000000"
 	ver   = "3.0.1"
 	apiURL = "https://fapi.iisis.ru/fapi/v2/analogList"
-	addr   = "localhost:8000"
+	addr   = "localhost:8008"
 )
 
 type errorResponse struct {
