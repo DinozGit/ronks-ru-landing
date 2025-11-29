@@ -20,9 +20,14 @@ RUN addgroup -S app && adduser -S app -G app
 
 WORKDIR /app
 
-# Копируем бинарь и index.html
+# Копируем бинарь, index.html и статические файлы
 COPY --from=builder /app/ronks-server /app/ronks-server
 COPY --from=builder /app/index.html /app/index.html
+COPY --from=builder /app/style.css /app/style.css
+COPY --from=builder /app/css /app/css
+COPY --from=builder /app/js /app/js
+COPY --from=builder /app/images /app/images
+COPY --from=builder /app/fonts /app/fonts
 
 # Порт внутри контейнера
 EXPOSE 8008

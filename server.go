@@ -26,7 +26,7 @@ type errorResponse struct {
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/analog", handleAnalog)
-	mux.HandleFunc("/", handleIndex)
+	mux.HandleFunc("/", handleRoot)
 
 	absIndex, _ := filepath.Abs("index.html")
 	log.Printf("✅ Go-сервер запущен: http://%s", addr)
@@ -85,13 +85,21 @@ func handleAnalog(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleIndex(w http.ResponseWriter, r *http.Request) {
-	// Serve the same index.html for all non-API routes
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+	// Serve static assets if the requested path exists on disk
+	if r.URL.Path != "/" && r.URL.Path != "" {
+		path := "." + r.URL.Path // e.g. /css/bootstrap.css -> ./css/bootstrap.css
+		if info, err := os.Stat(path); err == nil && !info.IsDir() {
+			http.ServeFile(w, r, path)
+			return
+		}
+	}
+
+	// Fallback: always serve index.html for SPA-style routing
 	if _, err := os.Stat("index.html"); err != nil {
 		http.Error(w, "index.html not found", http.StatusNotFound)
 		return
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	http.ServeFile(w, r, "index.html")
 }
 

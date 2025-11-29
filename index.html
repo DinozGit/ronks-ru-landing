@@ -1,968 +1,774 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <title>ronks.ru — агрегатор автозапчастей</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="ronks.ru — агрегатор автозапчастей с поиском аналогов (кроссов)." />
-    <style>
-      @font-face {
-        font-family: "Inter";
-        src: url("assets/fonts/inter/Inter-VariableFont_opsz,wght.ttf") format("truetype");
-        font-weight: 100 900;
-        font-style: normal;
-        font-display: swap;
-      }
-
-      @font-face {
-        font-family: "Inter";
-        src: url("assets/fonts/inter/Inter-Italic-VariableFont_opsz,wght.ttf") format("truetype");
-        font-weight: 100 900;
-        font-style: italic;
-        font-display: swap;
-      }
-
-      :root {
-        --ronks-white: #ffffff;
-        --ronks-orange: #ff6224;
-        --ronks-black: #1b1d1a;
-        --ronks-teal: #44797f;
-        --ronks-teal-light: #97d6df;
-        --ronks-border: #1f2933;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body.is-preload *,
-      body.is-preload *::before,
-      body.is-preload *::after {
-        animation: none !important;
-        transition: none !important;
-      }
-
-      body {
-        margin: 0;
-        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: var(--ronks-black);
-        color: var(--ronks-white);
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      a:hover {
-        text-decoration: underline;
-      }
-
-      .page {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .site-header {
-        padding: 16px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--ronks-black);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .brand-mark {
-        width: 44px;
-        height: 44px;
-      }
-
-      .brand-text {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.1;
-      }
-
-      .brand-name {
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .brand-tagline {
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.64);
-      }
-
-      .nav {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        font-size: 14px;
-      }
-
-      .nav a {
-        color: rgba(255, 255, 255, 0.72);
-        text-decoration: none;
-        white-space: nowrap;
-      }
-
-      .nav a:hover {
-        color: var(--ronks-white);
-      }
-
-      .nav-cta {
-        padding: 8px 14px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        background: rgba(255, 255, 255, 0.04);
-        color: var(--ronks-white);
-        text-decoration: none;
-      }
-
-      .nav-cta:hover {
-        background: var(--ronks-orange);
-        border-color: var(--ronks-orange);
-        color: var(--ronks-black);
-      }
-
-      @media (max-width: 768px) {
-        .site-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 8px;
-        }
-
-        .nav {
-          flex-wrap: wrap;
-          row-gap: 6px;
-        }
-      }
-
-      main {
-        flex: 1;
-        padding: 32px 16px 48px;
-      }
-
-      .hero {
-        max-width: 960px;
-        margin: 0 auto 40px;
-        padding: 24px 20px 28px;
-        border-radius: 16px;
-        background: radial-gradient(circle at top left, var(--ronks-teal-light), var(--ronks-teal));
-        color: var(--ronks-white);
-      }
-
-      .hero h1 {
-        font-size: clamp(28px, 5vw, 40px);
-        margin-bottom: 16px;
-        text-align: left;
-      }
-
-      .hero p {
-        font-size: 16px;
-        color: rgba(255, 255, 255, 0.86);
-        margin-bottom: 24px;
-        max-width: 640px;
-      }
-
-      .search-form {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .search-form label {
-        font-size: 14px;
-        text-align: left;
-        color: rgba(255, 255, 255, 0.86);
-      }
-
-      .search-row {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .search-row input[type="text"] {
-        flex: 1 1 220px;
-        padding: 10px 12px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.24);
-        background: rgba(27, 29, 26, 0.82);
-        color: var(--ronks-white);
-      }
-
-      .search-row input[type="text"]::placeholder {
-        color: rgba(255, 255, 255, 0.52);
-      }
-
-      .search-row button {
-        padding: 10px 18px;
-        border-radius: 8px;
-        border: none;
-        background: var(--ronks-orange);
-        color: var(--ronks-black);
-        font-weight: 600;
-        cursor: pointer;
-        white-space: nowrap;
-      }
-
-      .search-row button:hover {
-        background: #ff7b47;
-      }
-
-      .search-feedback {
-        min-height: 20px;
-        margin-top: 8px;
-        font-size: 14px;
-      }
-
-      .error {
-        color: #fca5a5;
-      }
-
-      .results {
-        margin-top: 24px;
-        overflow-x: auto;
-      }
-
-      .results-search {
-        margin-top: 8px;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .results-search input[type="text"] {
-        flex: 1 1 220px;
-        padding: 8px 10px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.24);
-        background: rgba(27, 29, 26, 0.82);
-        color: var(--ronks-white);
-        font-size: 13px;
-      }
-
-      .results-search input[type="text"]::placeholder {
-        color: rgba(255, 255, 255, 0.52);
-      }
-
-      .results-search button {
-        padding: 8px 14px;
-        border-radius: 8px;
-        border: none;
-        background: var(--ronks-orange);
-        color: var(--ronks-black);
-        font-weight: 600;
-        cursor: pointer;
-        white-space: nowrap;
-        font-size: 13px;
-      }
-
-      .results-search button:hover {
-        background: #ff7b47;
-      }
-
-      .results-counter {
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.7);
-      }
-
-      .results-search-status {
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.6);
-      }
-
-      .results-search-status--error {
-        color: #fca5a5;
-      }
-
-      .more-results {
-        margin-top: 8px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-      }
-
-      .more-results-button,
-      .collapse-results-button {
-        padding: 6px 12px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.04);
-        color: var(--ronks-white);
-        font-size: 13px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .more-results-button:hover,
-      .collapse-results-button:hover {
-        background: rgba(255, 255, 255, 0.12);
-      }
-
-      .highlight-row {
-        outline: 2px solid var(--ronks-orange);
-        outline-offset: -2px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 8px;
-        font-size: 14px;
-        background: rgba(27, 29, 26, 0.92);
-      }
-
-      th,
-      td {
-        border: 1px solid var(--ronks-border);
-        padding: 8px 10px;
-        text-align: left;
-      }
-
-      th {
-        background-color: rgba(0, 0, 0, 0.5);
-        color: var(--ronks-white);
-      }
-
-      tr:nth-child(even) {
-        background-color: rgba(0, 0, 0, 0.3);
-      }
-
-      tr:nth-child(odd) {
-        background-color: rgba(0, 0, 0, 0.18);
-      }
-
-      .clickable-row {
-        cursor: pointer;
-      }
-
-      .clickable-row:hover {
-        background-color: rgba(255, 98, 36, 0.16);
-      }
-
-      .section {
-        padding: 32px 0;
-      }
-
-      .section-inner {
-        max-width: 960px;
-        margin: 0 auto;
-      }
-
-      .section-title {
-        font-size: 24px;
-        margin: 0 0 12px;
-      }
-
-      .section-lead {
-        margin: 0 0 16px;
-        color: rgba(255, 255, 255, 0.8);
-      }
-
-      .two-column {
-        display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr);
-        gap: 32px;
-        align-items: flex-start;
-      }
-
-      .section-side {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.78);
-      }
-
-      .section-side ul {
-        padding-left: 18px;
-        margin: 8px 0 0;
-      }
-
-      .card-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-        margin-top: 16px;
-      }
-
-      .card {
-        padding: 16px 14px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        background: rgba(0, 0, 0, 0.25);
-      }
-
-      .card-title {
-        font-weight: 600;
-        margin-bottom: 6px;
-      }
-
-      .card p {
-        margin: 0;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.78);
-      }
-
-      .section-suppliers {
-        background: #111827;
-      }
-
-      .supplier-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 16px;
-        margin-top: 16px;
-      }
-
-      .supplier-card {
-        padding: 12px 10px;
-        border-radius: 10px;
-        background: rgba(0, 0, 0, 0.35);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .supplier-card img {
-        max-width: 100%;
-        max-height: 40px;
-        object-fit: contain;
-      }
-
-      .section-note {
-        margin-top: 16px;
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.7);
-      }
-
-      .section-note a {
-        color: var(--ronks-teal-light);
-      }
-
-      .section-cta {
-        background: var(--ronks-orange);
-        color: var(--ronks-black);
-      }
-
-      .cta-inner {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 24px;
-      }
-
-      .cta-inner p {
-        margin: 8px 0 0;
-        max-width: 520px;
-      }
-
-      .button,
-      .button-light {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 20px;
-        border-radius: 999px;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-      }
-
-      .button-light {
-        background: #ffffff;
-        color: #1b1d1a;
-      }
-
-      .button-light:hover {
-        background: #f3f4f6;
-      }
-
-      @media (max-width: 768px) {
-        .hero {
-          padding: 20px 16px 24px;
-        }
-
-        .two-column {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .cta-inner {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-      }
-
-      footer {
-        padding: 16px 24px 24px;
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.6);
-        text-align: center;
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
-      }
-    </style>
-  </head>
-  <body class="is-preload">
-    <div class="page">
-      <header class="site-header">
-        <div class="brand">
-<img src="assets/logo/RONKS-22.svg" alt="RONKS логотип" class="brand-mark" />
-          <div class="brand-text">
-            <div class="brand-name">ronks</div>
-            <div class="brand-tagline">Агрегатор автозапчастей</div>
-          </div>
-        </div>
-        <nav class="nav">
-          <a href="#about">О сервисе</a>
-          <a href="#for-whom">Для кого</a>
-          <a href="#search">Поиск кроссов</a>
-          <a href="#suppliers">Поставщики</a>
-          <a href="https://lk.ronks.ru" class="nav-cta">Личный кабинет</a>
-        </nav>
-      </header>
-      <main>
-        <section class="hero" id="search">
-          <h1>Агрегатор автозапчастей с умным поиском кроссов</h1>
-          <p>
-            Введите артикул или номер детали — Ronks сопоставит его с базой производителей и предложит оригинальные
-            запчасти и их аналоги от подключённых поставщиков.
-          </p>
-          <form class="search-form" id="search-form">
-            <label for="part-number">Номер запчасти или артикул</label>
-            <div class="search-row">
-              <input id="part-number" type="text" placeholder="Например, 06F 129 101 N" />
-              <button type="button" id="search-button">Найти кроссы</button>
-            </div>
-            <div id="error" class="search-feedback"></div>
-          </form>
-          <div id="tableContainer" class="results"></div>
-        </section>
-
-        <section class="section" id="about">
-          <div class="section-inner two-column">
-            <div>
-              <h2 class="section-title">О сервисе Ronks</h2>
-              <p class="section-lead">
-                Ronks — онлайн‑агрегатор автозапчастей, который собирает предложения проверенных поставщиков в одном окне
-                и помогает быстро подобрать запчасти по номеру детали, артикулу или аналогу.
-              </p>
-              <p>
-                Сервис экономит время менеджеров и закупщиков: в одном интерфейсе вы видите наличие, цены и аналоги от
-                разных партнёров и можете сразу перейти к оформлению заказа в личном кабинете.
-              </p>
-            </div>
-            <div class="section-side">
-              <strong>Всё. Везде. Сразу.</strong>
-              <ul>
-                <li>Единый поиск по нескольким поставщикам и брендам.</li>
-                <li>Подбор кроссов и аналогов с учётом оригинальных артикулов.</li>
-                <li>Актуальная информация о наличии и ценах.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section class="section" id="for-whom">
-          <div class="section-inner">
-            <h2 class="section-title">Для кого сервис Ronks</h2>
-            <p class="section-lead">
-              Ronks помогает всем, кто ежедневно работает с подбором и закупкой автозапчастей.
-            </p>
-            <div class="card-grid">
-              <article class="card">
-                <h3 class="card-title">Автосервисы и СТО</h3>
-                <p>Быстро находите запчасти под заказ и предложения с нужными сроками поставки для клиентов.</p>
-              </article>
-              <article class="card">
-                <h3 class="card-title">Оптовые и розничные продавцы</h3>
-                <p>
-                  Сравнивайте цены и наличие у разных поставщиков, подбирайте аналоги для расширения ассортимента и
-                  сохранения маржи.
-                </p>
-              </article>
-              <article class="card">
-                <h3 class="card-title">Корпоративные парки и логистика</h3>
-                <p>Контролируйте закупки запчастей для автопарка и снижайте затраты за счёт прозрачного выбора.</p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section class="section section-suppliers" id="suppliers">
-          <div class="section-inner">
-            <h2 class="section-title">Поставщики в системе Ronks.ru</h2>
-            <p class="section-lead">
-              В Ronks подключены поставщики с разными ценовыми уровнями, географией и условиями отгрузки. Клиенту не нужно
-              обходить десятки сайтов — система показывает предложения сразу.
-            </p>
-            <div class="supplier-grid">
-              <!-- TODO: Замените src на реальные логотипы и ссылки из sqsp.ru / бренд‑материалов -->
-              <a href="https://sqsp.ru" target="_blank" rel="noopener noreferrer" class="supplier-card">
-                <img src="assets/suppliers/supplier-1.png" alt="Логотип поставщика" />
-              </a>
-              <a href="https://sqsp.ru" target="_blank" rel="noopener noreferrer" class="supplier-card">
-                <img src="assets/suppliers/supplier-2.png" alt="Логотип поставщика" />
-              </a>
-              <a href="https://sqsp.ru" target="_blank" rel="noopener noreferrer" class="supplier-card">
-                <img src="assets/suppliers/supplier-3.png" alt="Логотип поставщика" />
-              </a>
-              <a href="https://sqsp.ru" target="_blank" rel="noopener noreferrer" class="supplier-card">
-                <img src="assets/suppliers/supplier-4.png" alt="Логотип поставщика" />
-              </a>
-            </div>
-            <p class="section-note">
-              Полный список партнёров и условия подключения доступны на сайте
-              <a href="https://sqsp.ru" target="_blank" rel="noopener noreferrer">sqsp.ru</a>.
-            </p>
-          </div>
-        </section>
-
-        <section class="section section-cta" id="cta">
-          <div class="section-inner cta-inner">
-            <div>
-              <h2 class="section-title">Подключайтесь к Ronks.ru</h2>
-              <p>
-                Получите доступ к единому окну подбора запчастей, кроссов и предложений поставщиков. Управляйте закупками и
-                заявками в личном кабинете.
-              </p>
-            </div>
-            <a href="https://lk.ronks.ru" class="button-light">Перейти в личный кабинет</a>
-          </div>
-        </section>
-      </main>
-      <footer>
-        © <span id="year"></span> ronks.ru. Лендинг агрегатора автозапчастей с поиском кроссов.
-      </footer>
-    </div>
-    <script>
-      // Обновление года в подвале
-      document.getElementById("year").textContent = new Date().getFullYear();
-
-      // Снимаем класс прелоада как в шаблоне Miniport
-      window.addEventListener("load", () => {
-        document.body.classList.remove("is-preload");
-      });
-
-      const input = document.getElementById("part-number");
-      const button = document.getElementById("search-button");
-      const errorEl = document.getElementById("error");
-      const tableEl = document.getElementById("tableContainer");
-
-      const PAGE_SIZE = 10;
-      let allItems = [];
-      let visibleCount = 0;
-      let pendingScrollIndex = null;
-
-      if (button && input) {
-        button.addEventListener("click", searchCrosses);
-        input.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            searchCrosses();
-          }
-        });
-      }
-
-      // Плавный скролл по пунктам меню (аналог jquery.scrolly из Miniport)
-      const headerEl = document.querySelector(".site-header");
-      const headerHeight = () => (headerEl ? headerEl.offsetHeight : 0);
-
-      document.querySelectorAll('.nav a[href^="#"]').forEach((link) => {
-        link.addEventListener("click", (e) => {
-          const id = link.getAttribute("href");
-          const target = id ? document.querySelector(id) : null;
-          if (!target) return;
-          e.preventDefault();
-          const rect = target.getBoundingClientRect();
-          const offset = rect.top + window.scrollY - headerHeight();
-          window.scrollTo({ top: offset, behavior: "smooth" });
-        });
-      });
-
-      async function searchCrosses() {
-        const partNumber = input.value.trim();
-
-        if (!partNumber) {
-          errorEl.textContent = "Введите артикул";
-          errorEl.classList.add("error");
-          tableEl.innerHTML = "";
-          return;
-        }
-
-        errorEl.textContent = "";
-        errorEl.classList.remove("error");
-        tableEl.innerHTML = "<p>Загрузка...</p>";
-
-        try {
-          const res = await fetch(`/api/analog?n=${encodeURIComponent(partNumber)}`);
-          const data = await res.json();
-
-          if (!res.ok) {
-            throw new Error(data.error || "Ошибка сервера");
-          }
-
-          if (!data.analogList || !data.analogList.a || !data.analogList.a.length) {
-            tableEl.innerHTML = "<p>Аналоги не найдены.</p>";
-            return;
-          }
-
-          const rows = processAnalogData(data, partNumber);
-          renderTable(rows);
-        } catch (err) {
-          console.error("Ошибка:", err);
-          errorEl.textContent = "Не удалось загрузить данные: " + err.message;
-          errorEl.classList.add("error");
-          tableEl.innerHTML = "";
-        }
-      }
-
-      function processAnalogData(data, originalPart) {
-        const mfMap = new Map((data.manufacturerList?.mf || []).map((m) => [m.i, m.ds]));
-        const prodMap = new Map((data.productList?.p || []).map((p) => [p.i, p]));
-
-        const target = originalPart.toLowerCase();
-        const analogs = (data.analogList?.a || []).filter((a) => a.ns?.toLowerCase() === target);
-
-        const origProd = (data.productList?.p || []).find(
-          (p) => p.ns?.toLowerCase() === target || p.n?.toLowerCase() === target,
-        );
-
-        return analogs.map((a) => {
-          const analogProd = prodMap.get(a.pai);
-          return {
-            origManuf: mfMap.get(a.mfi) || "—",
-            origPart: originalPart,
-            origDesc: origProd?.d || "",
-            analogManuf: mfMap.get(a.mfai) || "—",
-            analogPart: analogProd ? analogProd.n || analogProd.ns : a.nsa,
-            analogDesc: analogProd?.d || "",
-          };
-        });
-      }
-
-      function renderTable(items) {
-        allItems = items || [];
-
-        if (!allItems.length) {
-          tableEl.innerHTML = "<p>Аналоги не найдены.</p>";
-          return;
-        }
-
-        visibleCount = Math.min(PAGE_SIZE, allItems.length);
-        renderTableSlice();
-      }
-
-      function renderTableSlice() {
-        const slice = allItems.slice(0, visibleCount);
-
-        if (!slice.length) {
-          tableEl.innerHTML = "<p>Аналоги не найдены.</p>";
-          return;
-        }
-
-        const total = allItems.length;
-        const remaining = Math.max(total - visibleCount, 0);
-
-        const tableHtml = `
-          <table>
-            <thead>
-              <tr>
-                <th>Оригинал: производитель</th>
-                <th>Оригинал: номер</th>
-                <th>Оригинал: описание</th>
-                <th>Аналог: производитель</th>
-                <th>Аналог: номер</th>
-                <th>Аналог: описание</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${slice
-                .map(
-                  (i, index) => `
-                    <tr class="clickable-row" data-href="https://lk.ronks.ru" data-row-index="${index}">
-                      <td>${escapeHtml(i.origManuf)}</td>
-                      <td>${escapeHtml(i.origPart)}</td>
-                      <td>${escapeHtml(i.origDesc)}</td>
-                      <td>${escapeHtml(i.analogManuf)}</td>
-                      <td>${escapeHtml(i.analogPart)}</td>
-                      <td>${escapeHtml(i.analogDesc)}</td>
-                    </tr>
-                  `,
-                )
-                .join("")}
-            </tbody>
-          </table>
-        `;
-
-        let controlsHtml = `<div class="more-results"><span class="results-counter">Показано ${visibleCount} из ${total}</span>`;
-
-        if (total > PAGE_SIZE) {
-          const remainingNow = Math.max(total - visibleCount, 0);
-          const toShowNow = Math.min(PAGE_SIZE, remainingNow);
-
-          if (remainingNow > 0) {
-            controlsHtml += `
-              <button
-                type="button"
-                class="more-results-button"
-                title="Показать ещё ${toShowNow} из ${total} вариантов"
-              >
-                <span>Ещё ${toShowNow} из ${total} вариантов</span>
-                <span>↓</span>
-              </button>
-            `;
-          }
-
-          if (visibleCount > PAGE_SIZE) {
-            controlsHtml += `
-              <button
-                type="button"
-                class="collapse-results-button"
-                title="Свернуть список до первых ${PAGE_SIZE} вариантов"
-              >
-                <span>Свернуть</span>
-                <span>↑</span>
-              </button>
-            `;
-          }
-        }
-
-        controlsHtml += "</div>";
-
-        const searchHtml = `
-          <div class="results-search">
-            <input
-              id="results-search-input"
-              type="text"
-              placeholder="Поиск по таблице (артикул, производитель, описание)"
-            />
-            <button type="button" id="results-search-button">Найти</button>
-            <span id="results-search-status" class="results-search-status"></span>
-          </div>
-        `;
-
-        tableEl.innerHTML = searchHtml + tableHtml + controlsHtml;
-
-        document.querySelectorAll(".clickable-row").forEach((row) => {
-          row.addEventListener("click", () => {
-            const url = row.dataset.href;
-            if (url) {
-              window.location.href = url;
-            }
-          });
-        });
-
-        const searchInput = document.getElementById("results-search-input");
-        const searchButton = document.getElementById("results-search-button");
-
-        if (searchInput && searchButton) {
-          const triggerSearch = () => {
-            const query = searchInput.value.trim();
-            searchInResults(query);
-          };
-
-          searchButton.addEventListener("click", triggerSearch);
-          searchInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              triggerSearch();
-            }
-          });
-        }
-
-        const moreBtn = document.querySelector(".more-results-button");
-        if (moreBtn) {
-          moreBtn.addEventListener("click", () => {
-            const remainingNow = Math.max(allItems.length - visibleCount, 0);
-            if (remainingNow <= 0) return;
-            const add = Math.min(PAGE_SIZE, remainingNow);
-            visibleCount += add;
-            renderTableSlice();
-          });
-        }
-
-        const collapseBtn = document.querySelector(".collapse-results-button");
-        if (collapseBtn) {
-          collapseBtn.addEventListener("click", () => {
-            visibleCount = Math.min(PAGE_SIZE, allItems.length);
-            pendingScrollIndex = 0;
-            renderTableSlice();
-          });
-        }
-
-        if (pendingScrollIndex !== null) {
-          const row = document.querySelector(
-            `tr[data-row-index="${pendingScrollIndex}"]`,
-          );
-          if (row) {
-            row.classList.add("highlight-row");
-            row.scrollIntoView({ behavior: "smooth", block: "center" });
-            setTimeout(() => {
-              row.classList.remove("highlight-row");
-            }, 2000);
-          }
-          pendingScrollIndex = null;
-        }
-      }
-
-      function searchInResults(query) {
-        if (!allItems.length) return;
-
-        const statusEl = document.getElementById("results-search-status");
-        if (statusEl) {
-          statusEl.textContent = "";
-          statusEl.classList.remove("results-search-status--error");
-        }
-
-        const trimmed = (query || "").trim();
-        if (!trimmed) return;
-
-        const q = trimmed.toLowerCase();
-        const idx = allItems.findIndex((item) => {
-          return [
-            item.origManuf,
-            item.origPart,
-            item.origDesc,
-            item.analogManuf,
-            item.analogPart,
-            item.analogDesc,
-          ]
-            .filter(Boolean)
-            .some((val) => String(val).toLowerCase().includes(q));
-        });
-
-        if (idx === -1) {
-          if (statusEl) {
-            statusEl.textContent = "Ничего не найдено";
-            statusEl.classList.add("results-search-status--error");
-          }
-          return;
-        }
-
-        visibleCount = Math.max(PAGE_SIZE, idx + 1);
-        pendingScrollIndex = idx;
-        renderTableSlice();
-      }
-
-      function escapeHtml(text) {
-        const div = document.createElement("div");
-        div.textContent = text == null ? "" : String(text);
-        return div.innerHTML;
-      }
-    </script>
-  </body>
+<head>
+	<!-- set the encoding of your site -->
+	<meta charset="utf-8">
+	<!-- set the viewport width and initial-scale on mobile devices -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- set the apple mobile web app capable -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<!-- set the HandheldFriendly -->
+	<meta name="HandheldFriendly" content="True">
+	<!-- set the apple mobile web app status bar style -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!-- set the description -->
+	<meta name="description" content="ronks.ru — агрегатор автозапчастей с поиском аналогов (кроссов)">
+	<!-- set the Keyword -->
+	<meta name="keywords" content="ronks, автозапчасти, кроссы, поиск аналогов, агрегатор запчастей">
+	<meta name="author" content="ronks.ru">
+	<title>ronks.ru — агрегатор автозапчастей</title>
+	<!-- include the site stylesheet -->
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i%7COswald:400,700" rel="stylesheet">
+	<!-- include the site stylesheet -->
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<!-- include the site stylesheet -->
+	<link rel="stylesheet" href="css/plugins.css">
+	<!-- include the site stylesheet -->
+	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<!-- include the site stylesheet -->
+	<link rel="stylesheet" href="style.css">
+	<!-- include the site stylesheet -->
+	<link rel="stylesheet" href="css/colors.css">
+	<!-- include the site stylesheet -->
+	<link rel="stylesheet" href="css/responsive.css">
+	<!-- include the site stylesheet -->
+	<link rel="stylesheet" href="css/gridgum.css">
+	<style class="color_css"></style>
+	<style>
+		:root {
+			--ronks-bg: #97d6df;
+			--ronks-surface: #0b1721;
+			--ronks-border: #1f2933;
+			--ronks-text-main: #ffffff;
+			--ronks-text-muted: #9ca3af;
+			--ronks-accent: #ff6224;
+		}
+
+		/* Делаем основную часть заголовка отдельной строкой */
+		.hero-main-title {
+			display: block;
+		}
+
+		/* Отключаем оверлей загрузчика из шаблона mono, чтобы он не перекрывал страницу */
+		.loader-holder {
+			display: none !important;
+		}
+
+		/* Cross-search block (About -> Поиск кроссов) */
+		.ronks-search {
+			color: var(--ronks-text-main);
+		}
+
+		.ronks-search .heading-wrap h2 {
+			text-transform: none;
+		}
+
+		#search-form {
+			margin-top: 20px;
+		}
+
+		.ronks-search-label {
+			display: block;
+			margin-bottom: 6px;
+			font-size: 14px;
+		}
+
+		.ronks-search-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			margin-bottom: 8px;
+		}
+
+		#part-number {
+			flex: 1 1 220px;
+			padding: 10px 12px;
+			border-radius: 4px;
+			border: 1px solid rgba(255, 255, 255, 0.24);
+			background: rgba(3, 16, 24, 0.95);
+			color: #fff;
+		}
+
+		#part-number::placeholder {
+			color: rgba(255, 255, 255, 0.5);
+		}
+
+		#search-button {
+			padding: 10px 20px;
+			border-radius: 4px;
+			border: none;
+			background: var(--ronks-accent);
+			color: #000;
+			font-weight: 600;
+			cursor: pointer;
+			white-space: nowrap;
+		}
+
+		#search-button:hover {
+			background: #ff7b47;
+		}
+
+		#error {
+			min-height: 20px;
+			margin-top: 4px;
+			font-size: 13px;
+		}
+
+		#tableContainer {
+			margin-top: 18px;
+			overflow-x: auto;
+		}
+
+		#tableContainer table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 13px;
+			background: var(--ronks-surface);
+		}
+
+		#tableContainer th,
+		#tableContainer td {
+			border: 1px solid var(--ronks-border);
+			padding: 8px 10px;
+			text-align: left;
+		}
+
+		#tableContainer th {
+			background-color: rgba(0, 0, 0, 0.6);
+		}
+
+		#tableContainer tr:nth-child(even) {
+			background-color: rgba(0, 0, 0, 0.3);
+		}
+
+		#tableContainer tr:nth-child(odd) {
+			background-color: rgba(0, 0, 0, 0.18);
+		}
+
+		.clickable-row {
+			cursor: pointer;
+		}
+
+		.clickable-row:hover {
+			background-color: rgba(255, 98, 36, 0.16);
+		}
+
+		.results-search {
+			margin-top: 8px;
+			display: flex;
+			gap: 8px;
+			align-items: center;
+		}
+
+		.results-search input[type="text"] {
+			flex: 1 1 220px;
+			padding: 8px 10px;
+			border-radius: 4px;
+			border: 1px solid rgba(255, 255, 255, 0.24);
+			background: rgba(3, 16, 24, 0.95);
+			color: #fff;
+			font-size: 13px;
+		}
+
+		.results-search input[type="text"]::placeholder {
+			color: rgba(255, 255, 255, 0.52);
+		}
+
+		.results-search button {
+			padding: 8px 14px;
+			border-radius: 4px;
+			border: none;
+			background: var(--ronks-accent);
+			color: #000;
+			font-weight: 600;
+			cursor: pointer;
+			white-space: nowrap;
+			font-size: 13px;
+		}
+
+		.results-search-status {
+			font-size: 12px;
+			color: var(--ronks-text-muted);
+		}
+
+		.results-search-status--error {
+			color: #fca5a5;
+		}
+
+		.more-results {
+			margin-top: 8px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.results-counter {
+			font-size: 12px;
+			color: var(--ronks-text-muted);
+		}
+
+		.more-results-button,
+		.collapse-results-button {
+			padding: 6px 12px;
+			border-radius: 999px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			background: rgba(255, 255, 255, 0.04);
+			color: #fff;
+			font-size: 13px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.more-results-button:hover,
+		.collapse-results-button:hover {
+			background: rgba(255, 255, 255, 0.12);
+		}
+
+		.highlight-row {
+			outline: 2px solid var(--ronks-accent);
+			outline-offset: -2px;
+		}
+	</style>
+</head>
+<body>
+	<!-- Wrapper of the page -->
+	<div id="wrapper">
+		<!-- Header of the page -->
+		<header id="header">
+			<div class="container">
+				<div class="holder center-block">
+					<!-- Logo of the page -->
+					<div class="logo">
+						<a href="#">
+							<img src="images/logo.svg" alt="Mono" class="light img-responsive width">
+							<img src="images/logo-dark.svg" alt="mono" class="dark img-responsive width">
+						</a>
+					</div>
+					<!-- Logo of the page end -->
+					<!-- Navbar of the page -->
+					<nav class="navbar navbar-default">
+						<div class="navbar-header">
+							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+								<span class="sr-only">Toggle navigation</span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+							</button>
+						</div>
+						<a href="https://lk.ronks.ru" class="btn btn-default btn-white">Личный кабинет</a>
+						<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+							<ul class="nav navbar-nav navbar-right">
+								<li><a href="#" data-scroll-nav="0">О сервисе</a></li>
+								<li><a href="#" data-scroll-nav="1">Поиск кроссов</a></li>
+								<li><a href="#" data-scroll-nav="2">Для кого</a></li>
+								<li><a href="#" data-scroll-nav="3">Видео</a></li>
+								<li><a href="#" data-scroll-nav="4">Поставщики</a></li>
+							</ul>
+						</div>
+					</nav>
+					<!-- Navbar of the page end -->
+				</div>
+			</div>
+		</header>
+		<!-- Header of the page end -->
+		<!-- Main of the page -->
+		<main id="main">
+			<!-- Hero area of the page -->
+			<section class="hero-area text-center overlay" style="background-image: url(images/slide-1.jpg);" data-scroll-index="0">
+				<div id="particles-js"></div>
+				<div class="container">
+					<div class="row">
+						<header class="heading-holder col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+							<h1>
+								<span class="text-small">ronks.ru — Всё.Везде.Сразу.</span>
+								<span class="hero-main-title">Умный поиск запчастей и предложений поставщиков</span>
+							</h1>
+							<p>Ronks объединяет предложения проверенных поставщиков автозапчастей и помогает быстро находить оригиналы и аналоги по артикулу или номеру детали.</p>
+						</header>
+					</div>
+					<div class="aligncenter">
+						<img src="images/macbook.png" alt="image description m-top" class="img-responsive">
+					</div>
+				</div>
+			</section>
+			<!-- Hero area of the page end -->
+			<!-- Product Features of the page -->
+			<section class="container product-features ronks-search" data-scroll-index="1">
+				<div class="row">
+					<div class="col-xs-12 col-md-8 col-md-offset-2">
+						<form id="search-form">
+							<h2>Поиск кроссов автозапчастей</h2>
+							<label for="part-number" class="ronks-search-label">Номер запчасти или артикул</label>
+							<div class="ronks-search-row">
+								<input id="part-number" type="text" placeholder="Например, 06F 129 101 N">
+								<button type="button" id="search-button">Найти кроссы</button>
+							</div>
+							<div id="error"></div>
+						</form>
+						<header class="heading-wrap text-center">
+													<p>Введите артикул или номер детали — Ronks сопоставит его с базой производителей и вернёт оригиналы и их аналоги.</p>
+						</header>
+						<div id="tableContainer"></div>
+					</div>
+				</div>
+			</section>
+			<!-- Product Features of the page end -->
+			<!-- Features area of the page -->
+			<section class="features-area container" data-scroll-index="2">
+				<div class="row">
+					<header class="col-xs-12 heading-wrap col-sm-6 col-sm-offset-3 text-center">
+						<h2>Для кого сервис Ronks</h2>
+					</header>
+				</div>
+				<!-- Features of the page -->
+				<ul class="features-list">
+					<li>
+						<div class="icon-holder">
+							<img src="images/speech-bubble.png" width="54" height="52" alt="Автосервисы и СТО" class="img-responsive">
+						</div>
+						<h3><a href="#">Автосервисы и СТО</a></h3>
+						<p>Быстро находите запчасти под заказ и предложения с нужными сроками поставки для клиентов.</p>
+					</li>
+					<li>
+						<div class="icon-holder">
+							<img src="images/time-left.png" width="56" height="50" alt="Оптовые и розничные продавцы" class="img-responsive">
+						</div>
+						<h3><a href="#">Оптовые и розничные продавцы</a></h3>
+						<p>Сравнивайте цены и наличие у разных поставщиков, подбирайте аналоги и расширяйте ассортимент.</p>
+					</li>
+					<li>
+						<div class="icon-holder">
+							<img src="images/download.png" width="51" height="45" alt="Корпоративные парки и логистика" class="img-responsive">
+						</div>
+						<h3><a href="#">Корпоративные парки и логистика</a></h3>
+						<p>Контролируйте закупки запчастей для автопарка и снижайте затраты за счёт прозрачного выбора.</p>
+					</li>
+				</ul>
+				<!-- Features of the page end -->
+			</section>
+			<!-- Features area of the page end -->
+			<!-- Demo block of the page -->
+			<aside class="demo-block">
+				<div class="container">
+					<div class="row">
+						<div class="col-xs-12 col-md-7">
+							<h2>ХОТИТЕ СТАТЬ ПОСТАВЩИКОМ В RONKS.RU?</h2>
+							<p>Подключись к агрегатору уже сегодня — расширяй клиентскую базу без лишних усилий!.</p>
+						</div>
+						<div class="col-xs-12 col-md-5">
+							<ul>
+								<li><a href="#" class="btn btn-default btn-white">Подать заявку</a></li>
+								<li><a href="#">Попробовать сейчас</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</aside>
+			<!-- Demo block of the page end -->
+			<!-- Video block of the page -->
+			<aside class="video-block" data-scroll-index="3">
+				<div class="video overlay">
+					<img src="images/2600-430.jpg" alt="image description" class="img-responsive">
+					<a href="https://lk.ronks.ru" class="ico-play lightbox fancybox.iframe"></a>
+				</div>
+			</aside>
+			<!-- Video block of the page end -->
+
+
+			<!-- Trial block of the page -->
+			<section class="trial-block container" data-scroll-index="4">
+				<div class="row">
+					<div class="alignleft">
+						<img src="images/665.jpg" alt="Поставщики Ronks" class="img-responsive">
+					</div>
+					<div class="col-xs-12 col-sm-6 descr">
+						<div class="align">
+							<header class="heading-wrap">
+								<h2>Поставщики в системе Ronks.ru</h2>
+							</header>
+							<p>В Ronks подключены поставщики с разными ценовыми уровнями, географией и условиями отгрузки. Клиенту не нужно обходить десятки сайтов — система показывает предложения сразу.</p>
+							<a href="https://sqsp.ru" target="_blank" rel="noopener noreferrer" class="btn btn-info">Подробнее о партнёрах</a>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- Trial block of the page end -->
+			<!-- Brands area of the page -->
+			<aside class="brands-area container">
+				<div class="row">
+					<header class="col-xs-12 heading-wrap col-sm-6 col-sm-offset-3 text-center">
+						<h2>Наши партнёры</h2>
+					</header>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<!-- Logos list of the page -->
+						<ul class="list-unstyled line-slider">
+							<li><a href="#"><img src="images/partner06.png" alt="image description" class="img-responsive"></a></li>
+							<li><a href="#"><img src="images/partner04.png" alt="image description" class="img-responsive"></a></li>
+							<li><a href="#"><img src="images/partner05.png" alt="image description" class="img-responsive"></a></li>
+							<li><a href="#"><img src="images/partner06.png" alt="image description" class="img-responsive"></a></li>
+							<li><a href="#"><img src="images/partner04.png" alt="image description" class="img-responsive"></a></li>
+							<li><a href="#"><img src="images/partner05.png" alt="image description" class="img-responsive"></a></li>
+							<li><a href="#"><img src="images/partner06.png" alt="image description" class="img-responsive"></a></li>
+							<li><a href="#"><img src="images/partner04.png" alt="image description" class="img-responsive"></a></li>
+						</ul>
+						<!-- Logos list of the page end -->
+					</div>
+				</div>
+			</aside>
+			<!-- Brands area of the page end -->
+		</main>
+		<!-- Main of the page end -->
+		<!-- Footer of the page -->
+		<footer id="footer">
+			<!-- Aside of the page -->
+			<aside class="aside">
+				<div class="container">
+					<div class="row">
+						<div class="col-xs-12 text-center col-sm-6 col-sm-offset-3">
+							<div class="logo"><a href="#"><img src="images/logo.svg" alt="mono"></a></div>
+							<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis imperdiet egestas.</p>
+							<!-- Social Networks of the page -->
+							<ul class="social-networks">
+								<li><a href="#"><span class="icon ico-facebook"></span></a></li>
+								<li><a href="#"><span class="icon ico-twitter"></span></a></li>
+								<li><a href="#"><span class="icon ico-google-plus"></span></a></li>
+								<li><a href="#"><span class="icon ico-pinterest"></span></a></li>
+								<li><a href="#"><span class="icon ico-icon1"></span></a></li>
+							</ul>
+							<!-- Social Networks of the page end -->
+						</div>
+					</div>
+				</div>
+			</aside>
+			<!-- Aside of the page end -->
+			<div class="container">
+				<div class="row">
+					<div class="col-xs-12 col-sm-4 col-sm-offset-4 text-center">
+						<p>© <span id="year"></span> ronks.ru — агрегатор автозапчастей с поиском кроссов.</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+		<!-- Footer of the page end -->
+		<!-- Back Top of the page -->
+    	<span id="back-top" class="fa fa-angle-up"></span>
+    	<div id="loader" class="loader-holder">
+			<div class="block"><img src="images/svg/hearts.svg" width="100" alt="loader"></div>
+		</div>
+	</div>
+	<!-- Wrapper of the page end -->
+	<!-- include jQuery -->
+	<script src="js/jquery.js"></script>
+	<!-- include jQuery -->
+	<script src="js/plugins.js"></script>
+	<!-- include jQuery -->
+	<script src="js/jquery.main.js"></script>
+	<!-- include jQuery -->
+	<script src="js/particles.js"></script>
+	<div id="style-changer" data-src="style-changer.html"></div>
+	<script>
+		// Обновление года в подвале
+		document.getElementById('year').textContent = new Date().getFullYear();
+
+		const input = document.getElementById('part-number');
+		const button = document.getElementById('search-button');
+		const errorEl = document.getElementById('error');
+		const tableEl = document.getElementById('tableContainer');
+
+		const PAGE_SIZE = 10;
+		let allItems = [];
+		let visibleCount = 0;
+		let pendingScrollIndex = null;
+
+		if (button && input) {
+			button.addEventListener('click', searchCrosses);
+			input.addEventListener('keypress', (e) => {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					searchCrosses();
+				}
+			});
+		}
+
+		async function searchCrosses() {
+			const partNumber = input.value.trim();
+
+			if (!partNumber) {
+				if (errorEl) {
+					errorEl.textContent = 'Введите артикул';
+					errorEl.classList.add('results-search-status--error');
+				}
+				if (tableEl) tableEl.innerHTML = '';
+				return;
+			}
+
+			if (errorEl) {
+				errorEl.textContent = '';
+				errorEl.classList.remove('results-search-status--error');
+			}
+			if (tableEl) tableEl.innerHTML = '<p>Загрузка...</p>';
+
+			try {
+				const res = await fetch(`/api/analog?n=${encodeURIComponent(partNumber)}`);
+				const data = await res.json();
+
+				if (!res.ok) {
+					throw new Error(data.error || 'Ошибка сервера');
+				}
+
+				if (!data.analogList || !data.analogList.a || !data.analogList.a.length) {
+					if (tableEl) tableEl.innerHTML = '<p>Аналоги не найдены.</p>';
+					return;
+				}
+
+				const rows = processAnalogData(data, partNumber);
+				renderTable(rows);
+			} catch (err) {
+				console.error('Ошибка:', err);
+				if (errorEl) {
+					errorEl.textContent = 'Не удалось загрузить данные: ' + err.message;
+					errorEl.classList.add('results-search-status--error');
+				}
+				if (tableEl) tableEl.innerHTML = '';
+			}
+		}
+
+		function processAnalogData(data, originalPart) {
+			const mfMap = new Map((data.manufacturerList?.mf || []).map((m) => [m.i, m.ds]));
+			const prodMap = new Map((data.productList?.p || []).map((p) => [p.i, p]));
+
+			const target = originalPart.toLowerCase();
+			const analogs = (data.analogList?.a || []).filter((a) => a.ns?.toLowerCase() === target);
+
+			const origProd = (data.productList?.p || []).find(
+				(p) => p.ns?.toLowerCase() === target || p.n?.toLowerCase() === target,
+			);
+
+			return analogs.map((a) => {
+				const analogProd = prodMap.get(a.pai);
+				return {
+					origManuf: mfMap.get(a.mfi) || '—',
+					origPart: originalPart,
+					origDesc: origProd?.d || '',
+					analogManuf: mfMap.get(a.mfai) || '—',
+					analogPart: analogProd ? analogProd.n || analogProd.ns : a.nsa,
+					analogDesc: analogProd?.d || '',
+				};
+			});
+		}
+
+		function renderTable(items) {
+			allItems = items || [];
+
+			if (!allItems.length) {
+				if (tableEl) tableEl.innerHTML = '<p>Аналоги не найдены.</p>';
+				return;
+			}
+
+			visibleCount = Math.min(PAGE_SIZE, allItems.length);
+			renderTableSlice();
+		}
+
+		function renderTableSlice() {
+			const slice = allItems.slice(0, visibleCount);
+
+			if (!slice.length) {
+				if (tableEl) tableEl.innerHTML = '<p>Аналоги не найдены.</p>';
+				return;
+			}
+
+			const total = allItems.length;
+			const tableHtml = `
+			  <table>
+				<thead>
+				  <tr>
+					<th>Оригинал: производитель</th>
+					<th>Оригинал: номер</th>
+					<th>Оригинал: описание</th>
+					<th>Аналог: производитель</th>
+					<th>Аналог: номер</th>
+					<th>Аналог: описание</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  ${slice
+						.map(
+						  (i, index) => `
+							<tr class="clickable-row" data-href="https://lk.ronks.ru" data-row-index="${index}">
+							  <td>${escapeHtml(i.origManuf)}</td>
+							  <td>${escapeHtml(i.origPart)}</td>
+							  <td>${escapeHtml(i.origDesc)}</td>
+							  <td>${escapeHtml(i.analogManuf)}</td>
+							  <td>${escapeHtml(i.analogPart)}</td>
+							  <td>${escapeHtml(i.analogDesc)}</td>
+							</tr>
+						  `,
+						)
+						.join('')}
+				</tbody>
+			  </table>
+			`;
+
+			let controlsHtml = `<div class="more-results"><span class="results-counter">Показано ${visibleCount} из ${total}</span>`;
+
+			if (total > PAGE_SIZE) {
+				const remainingNow = Math.max(total - visibleCount, 0);
+				const toShowNow = Math.min(PAGE_SIZE, remainingNow);
+
+				if (remainingNow > 0) {
+					controlsHtml += `
+					  <button
+						  type="button"
+						  class="more-results-button"
+						  title="Показать ещё ${toShowNow} из ${total} вариантов"
+					  >
+						<span>Ещё ${toShowNow} из ${total} вариантов</span>
+						<span>↓</span>
+					  </button>
+					`;
+				}
+
+				if (visibleCount > PAGE_SIZE) {
+					controlsHtml += `
+					  <button
+						  type="button"
+						  class="collapse-results-button"
+						  title="Свернуть список до первых ${PAGE_SIZE} вариантов"
+					  >
+						<span>Свернуть</span>
+						<span>↑</span>
+					  </button>
+					`;
+				}
+			}
+
+			controlsHtml += '</div>';
+
+			const searchHtml = `
+			  <div class="results-search">
+				<input
+				  id="results-search-input"
+				  type="text"
+				  placeholder="Поиск по таблице (артикул, производитель, описание)"
+				/>
+				<button type="button" id="results-search-button">Найти</button>
+				<span id="results-search-status" class="results-search-status"></span>
+			  </div>
+			`;
+
+			if (tableEl) tableEl.innerHTML = searchHtml + tableHtml + controlsHtml;
+
+			document.querySelectorAll('.clickable-row').forEach((row) => {
+				row.addEventListener('click', () => {
+					const url = row.dataset.href;
+					if (url) {
+						window.location.href = url;
+					}
+				});
+			});
+
+			const searchInput = document.getElementById('results-search-input');
+			const searchButton = document.getElementById('results-search-button');
+
+			if (searchInput && searchButton) {
+				const triggerSearch = () => {
+					const query = searchInput.value.trim();
+					searchInResults(query);
+				};
+
+				searchButton.addEventListener('click', triggerSearch);
+				searchInput.addEventListener('keypress', (e) => {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						triggerSearch();
+					}
+				});
+			}
+
+			const moreBtn = document.querySelector('.more-results-button');
+			if (moreBtn) {
+				moreBtn.addEventListener('click', () => {
+					const remainingNow = Math.max(allItems.length - visibleCount, 0);
+					if (remainingNow <= 0) return;
+					const add = Math.min(PAGE_SIZE, remainingNow);
+					visibleCount += add;
+					renderTableSlice();
+				});
+			}
+
+			const collapseBtn = document.querySelector('.collapse-results-button');
+			if (collapseBtn) {
+				collapseBtn.addEventListener('click', () => {
+					visibleCount = Math.min(PAGE_SIZE, allItems.length);
+					pendingScrollIndex = 0;
+					renderTableSlice();
+				});
+			}
+
+			if (pendingScrollIndex !== null) {
+				const row = document.querySelector(
+					`tr[data-row-index="${pendingScrollIndex}"]`,
+				);
+				if (row) {
+					row.classList.add('highlight-row');
+					row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					setTimeout(() => {
+						row.classList.remove('highlight-row');
+					}, 2000);
+				}
+				pendingScrollIndex = null;
+			}
+		}
+
+		function searchInResults(query) {
+			if (!allItems.length) return;
+
+			const statusEl = document.getElementById('results-search-status');
+			if (statusEl) {
+				statusEl.textContent = '';
+				statusEl.classList.remove('results-search-status--error');
+			}
+
+			const trimmed = (query || '').trim();
+			if (!trimmed) return;
+
+			const q = trimmed.toLowerCase();
+			const idx = allItems.findIndex((item) => {
+				return [
+					item.origManuf,
+					item.origPart,
+					item.origDesc,
+					item.analogManuf,
+					item.analogPart,
+					item.analogDesc,
+				]
+					.filter(Boolean)
+					.some((val) => String(val).toLowerCase().includes(q));
+			});
+
+			if (idx === -1) {
+				if (statusEl) {
+					statusEl.textContent = 'Ничего не найдено';
+					statusEl.classList.add('results-search-status--error');
+				}
+				return;
+			}
+
+			visibleCount = Math.max(PAGE_SIZE, idx + 1);
+			pendingScrollIndex = idx;
+			renderTableSlice();
+		}
+
+		function escapeHtml(text) {
+			const div = document.createElement('div');
+			div.textContent = text == null ? '' : String(text);
+			return div.innerHTML;
+		}
+	</script>
+</body>
 </html>
